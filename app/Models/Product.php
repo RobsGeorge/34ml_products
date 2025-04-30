@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -20,4 +23,18 @@ class Product extends Model
         'average_rating' => 'double',
     ];
     
+    public function options(): BelongsToMany
+    {
+        return $this->belongsToMany(Option::class);
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(Variant::class);
+    }
+
+    public function defaultVariant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class, 'default_variant_id');
+    }
 }

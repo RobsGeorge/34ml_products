@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Events\ProductOutOfStock;
 
 class Product extends Model
 {
@@ -48,6 +49,20 @@ class Product extends Model
         if ($cheapestVariant) {
             $this->default_variant_id = $cheapestVariant->id;
             $this->save();
+        }
+    }
+
+    // A Method to check and update the product's stock status
+    public function updateStockStatus(): void
+    {
+        $hasInStockVariants = $this->variants()->where('is_in_stock', true)->exists();
+        
+        if ($this->is_in_stock && !$hasInStockVariants) {
+            $this->is_in_stock = false;
+            $this->save();
+            
+            // Fire the ProductOutOfStock event
+            event(new ProductOutOfStock($this));
         }
     }
 }

@@ -37,4 +37,17 @@ class Product extends Model
     {
         return $this->belongsTo(Variant::class, 'default_variant_id');
     }
+
+    // A Method to set the default variant (lowest price)
+    public function setDefaultVariant(): void
+    {
+        $cheapestVariant = $this->variants()
+            ->orderBy('price')
+            ->first();
+
+        if ($cheapestVariant) {
+            $this->default_variant_id = $cheapestVariant->id;
+            $this->save();
+        }
+    }
 }
